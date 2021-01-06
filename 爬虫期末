@@ -1,3 +1,4 @@
+豆瓣top250电视剧
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
 import re
@@ -38,3 +39,45 @@ for i in range(0,4):
         worksheet.write(count, 6, ss)
         count += 1
         workbook.save('1.xls'))
+ -----------------------------------------------------------------------------------------------------------------------------       
+豆瓣top250音乐
+from urllib.request import urlopen, Request
+from bs4 import BeautifulSoup
+import xlwt
+
+workbook = xlwt.Workbook(encoding='UTF-8')
+worksheet = workbook.add_sheet('music',cell_overwrite_ok=True)
+worksheet.write(0, 0, label="歌名")
+worksheet.write(0, 1, label="歌手")
+worksheet.write(0, 2, label="时间")
+worksheet.write(0, 3, label="类型")
+worksheet.write(0, 4, label="风格")
+worksheet.write(0, 5, label="评分")
+# worksheet.write(0, 6, label="评语")
+count = 1
+for i in range(0,10):
+
+    url="https://music.douban.com/top250?start={}".format(i*25)
+    headers={'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3947.100 Safari/537.36'}
+    ret=Request(url,headers=headers)
+    html=urlopen(ret)
+    bs=BeautifulSoup(html,"html.parser")
+    item = bs.find_all('table',{"width":"100%%"})
+    for items in item:
+        try:
+            title=items.find('a',{"class":"nbg"}).get("title")
+            t = title.split('-',3)
+            alls = items.find('p',{"class":"pl"}).text
+            all = alls.rsplit(' / ',5)
+            ss=items.find('span',{"class":"rating_nums"}).text
+        # print(all[4])
+            worksheet.write(count, 0, t[1])
+            worksheet.write(count, 1, all[0])
+            worksheet.write(count, 2, all[1])
+            worksheet.write(count, 5, ss)
+            worksheet.write(count, 3, all[2])
+            worksheet.write(count, 4, all[4])
+            count += 1
+            workbook.save('2.xls')
+        except:
+            continue
